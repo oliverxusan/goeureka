@@ -1,6 +1,7 @@
 package goeureka
 
 import (
+	"context"
 	"crypto/tls"
 	"io/ioutil"
 	"log"
@@ -16,12 +17,12 @@ func exeQuery(requestAction RequestAction) ([]byte, error) {
 
 	var DefaultTransport http.RoundTripper = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		Dial: func(netw, addr string) (net.Conn, error) {
-			conn, err := net.DialTimeout(netw, addr, time.Second*10)    //设置建立连接超时
+		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+			conn, err := net.DialTimeout(network, addr, time.Second*10) //设置建立连接超时
 			if err != nil {
 				return nil, err
 			}
-			conn.SetDeadline(time.Now().Add(time.Second * 10))    //设置发送接受数据超时
+			conn.SetDeadline(time.Now().Add(time.Second * 10)) //设置发送接受数据超时
 			return conn, nil
 		},
 		ResponseHeaderTimeout: time.Second * 10,
@@ -62,19 +63,18 @@ func isDoHttpRequest(requestAction RequestAction) bool {
 	return false
 }
 
-
 // newHttpRequest build request for eureka
 func newHttpRequest(requestAction RequestAction) *http.Request {
 	var (
-		err error
+		err     error
 		request *http.Request
 	)
 	//log.Printf("DoHttpRequest URL(%v)",requestAction.Url)
 	// load body and template for request
-	if requestAction.Body != "" {					// add body
+	if requestAction.Body != "" { // add body
 		reader := strings.NewReader(requestAction.Body)
 		request, err = http.NewRequest(requestAction.Method, requestAction.Url, reader)
-	} else if requestAction.Template != "" {		// add template
+	} else if requestAction.Template != "" { // add template
 		reader := strings.NewReader(requestAction.Template)
 		request, err = http.NewRequest(requestAction.Method, requestAction.Url, reader)
 	} else {
@@ -89,8 +89,8 @@ func newHttpRequest(requestAction RequestAction) *http.Request {
 		"Content-Type": {requestAction.ContentType},
 	}
 	// Add auth username and password
-	if username != ""{
-		request.SetBasicAuth(username,password)
+	if username != "" {
+		request.SetBasicAuth(username, password)
 	}
 	return request
 }
