@@ -4,7 +4,6 @@ import (
 	"strings"
 )
 
-
 // define eureka config
 var configStr = `{
   "instance": {
@@ -36,13 +35,8 @@ var configStr = `{
   }
 }`
 
-
-
 // newConfig load cfg from configStr
-func newConfig(appName,localip, port, securePort string)  string{
-	if localip == ""{
-		localip = getLocalIP()
-	}
+func newConfig(appName, localip, port, securePort string) string {
 	// load config
 	cfg := string(configStr)
 	cfg = strings.Replace(cfg, "${ipAddress}", localip, -1)

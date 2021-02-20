@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	Vport              string
+	VPort              string
+	VLocalIp           string
 	username           string                    // login username
 	password           string                    // login password
 	eurekaPath         = "/eureka/apps/"         // define eureka path
@@ -47,8 +48,13 @@ func RegisterClient(eurekaUrl string, localIp string, appName string, port strin
 // Input: JSON/XML payload HTTP Code: 204 on success
 func Register(appName string, localIp string, port string, securePort string) {
 	appName = strings.ToUpper(appName)
-	Vport = port
-	cfg := newConfig(appName, localIp, port, securePort)
+	VPort = port
+	if localIp == "" {
+		VLocalIp = getLocalIP()
+	} else {
+		VLocalIp = localIp
+	}
+	cfg := newConfig(appName, VLocalIp, port, securePort)
 
 	// define Register request
 	registerAction := RequestAction{
@@ -119,8 +125,9 @@ func GetInfoWithAppName(appName string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
+	var instanceId = VLocalIp + ":" + appName + ":" + VPort
 	for _, ins := range instances {
-		if ins.App == appName {
+		if ins.App == appName && ins.InstanceId == instanceId {
 			return ins.InstanceId, ins.LastDirtyTimestamp, nil
 		}
 	}
@@ -182,7 +189,7 @@ func heartbeat(appName string, localIp string) {
 	} else {
 		if localIp != "" {
 			// "58.49.122.210:GOLANG-SERVER:8889"
-			instanceId = localIp + ":" + appName + ":" + Vport
+			instanceId = localIp + ":" + appName + ":" + VPort
 		}
 		heartbeatAction := RequestAction{
 			//http://127.0.0.1:8761/eureka/apps/TORNADO-SERVER/127.0.0.1:tornado-server:3333/status?value=UP&lastDirtyTimestamp=1607321668458
