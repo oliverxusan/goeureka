@@ -17,7 +17,7 @@ func TestShuffle(t *testing.T) {
 	var cnt2 = map[int]int{}
 	for i := 0; i < 1000000; i++ {
 		sl := r.RandRobin2(7)
-		cnt2[sl[0]]++
+		cnt2[sl]++
 	}
 
 	fmt.Println(cnt1, "\n", cnt2)
