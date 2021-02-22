@@ -214,16 +214,16 @@ func SendHeartBeat(appName string, localIp string) {
 func deregister(appName string) {
 	appName = strings.ToUpper(appName)
 	log.Println("Trying to deregister application " + appName)
-	instanceId, lastDirtyTimestamp, _ := GetInfoWithAppName(appName)
+	instanceId, _, _ := GetInfoWithAppName(appName)
 	// cancel registerion
 	deregisterAction := RequestAction{
 		//http://127.0.0.1:8761/eureka/apps/TORNADO-SERVER/127.0.0.1:tornado-server:3333/status?value=UP&lastDirtyTimestamp=1607321668458
-		Url:         discoveryServerUrl + eurekaPath + appName + "/" + instanceId + "/status?value=UP&lastDirtyTimestamp=" + lastDirtyTimestamp,
+		Url:         discoveryServerUrl + eurekaPath + appName + "/" + instanceId, //+ "/status?value=UP&lastDirtyTimestamp=" + lastDirtyTimestamp,
 		ContentType: "application/json;charset=UTF-8",
 		Method:      "DELETE",
 	}
 	isDoHttpRequest(deregisterAction)
-	log.Println("Deregistered App: " + appName)
+	log.Println("Cancel App: " + appName + " InstanceId:" + instanceId)
 }
 
 // handleSigterm when has signal os Interrupt eureka would exit
