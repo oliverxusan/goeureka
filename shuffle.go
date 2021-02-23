@@ -29,5 +29,8 @@ func (r *Rand) RandRobin(indexes []int) {
 }
 
 func (r *Rand) RandRobin2(n int) int {
+	if n == 1 {
+		return 0
+	}
 	return rand.Perm(n)[0]
 }

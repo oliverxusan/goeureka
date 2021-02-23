@@ -239,7 +239,7 @@ func handleSigtermProcess(appName string) {
 	}()
 }
 
-func Req(url string, body string) (m map[interface{}]interface{}, err error) {
+func Req(url string, body string) (m map[string]interface{}, err error) {
 	requestAction := RequestAction{
 		Url:         url,
 		Method:      "POST",

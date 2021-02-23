@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/oliverxusan/goeureka"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -18,6 +19,7 @@ type ClientInterface interface {
 	LoadBalanceStrategy
 }
 type ClientService struct {
+	Schema   string
 	AppName  string
 	NodeList []Node
 	Strategy LoadBalanceStrategy
@@ -31,6 +33,7 @@ type Node struct {
 
 func NEW(appName string) *ClientService {
 	c := &ClientService{
+		Schema:   "http://",
 		AppName:  strings.ToUpper(appName),
 		Strategy: newRoundRobin(),
 	}
@@ -42,11 +45,14 @@ func (c *ClientService) GetServiceName() string {
 }
 
 func (c *ClientService) getServiceNode(nodeList []Node) string {
-	return c.Strategy.getServiceNode(nodeList)
+	return c.Schema + c.Strategy.getServiceNode(nodeList)
 }
 
 func (c *ClientService) Request(path string, param map[string]interface{}) interface{} {
 	nodeList := c.getRegisterCenterData()
+	if len(nodeList) == 0 {
+		panic("Get Service Node List is null")
+	}
 	base := c.getServiceNode(nodeList) + "/" + path
 	body, err := json.Marshal(param)
 	if err != nil {
@@ -69,7 +75,7 @@ func (c *ClientService) getRegisterCenterData() []Node {
 		for k, ins := range instances {
 			nodeList[k] = Node{
 				Ip:   ins.IpAddr,
-				Port: string(ins.Port.Port),
+				Port: strconv.Itoa(ins.Port.Port),
 			}
 		}
 	}
@@ -88,7 +94,7 @@ func (s *RoundRobinStrategy) getServiceNode(nodeList []Node) string {
 	rand := goeureka.NewRand()
 	index := rand.RandRobin2(len(nodeList))
 	node := nodeList[index]
-	return node.Ip + node.Port
+	return node.Ip + ":" + node.Port
 }
 
 func newRoundRobin() LoadBalanceStrategy {
