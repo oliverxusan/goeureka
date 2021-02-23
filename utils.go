@@ -8,14 +8,15 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unsafe"
 )
 
 const (
-	epoch int64 = 1526285084373
-	numWorkerBits = 10
-	numSequenceBits = 12
-	MaxWorkId = -1 ^ (-1 << numWorkerBits)
-	MaxSequence = -1 ^ (-1 << numSequenceBits)
+	epoch           int64 = 1526285084373
+	numWorkerBits         = 10
+	numSequenceBits       = 12
+	MaxWorkId             = -1 ^ (-1 << numWorkerBits)
+	MaxSequence           = -1 ^ (-1 << numSequenceBits)
 )
 
 type SnowFlake struct {
@@ -49,7 +50,7 @@ func getIpFromDocker() string {
 	for i := range environ {
 		env_param := environ[i]
 		param := strings.Split(env_param, "=")
-		if len(param) ==2 && param[0] == "SystemRoot"{
+		if len(param) == 2 && param[0] == "SystemRoot" {
 			fmt.Println(param)
 			return param[1]
 		}
@@ -82,22 +83,21 @@ func getUuid() string {
 	}
 
 	// Generate a snowflake ID.
-	uuid, _:= sf.Generate()
+	uuid, _ := sf.Generate()
 	return uuid
 }
 
 // GetUuid getUuid for test
-func GetUuid() (string, error){
+func GetUuid() (string, error) {
 	sf, err := newSnowFlake(1)
 	if err != nil {
 		panic(err)
 	}
 
 	// Generate a snowflake ID.
-	uuid, err:= sf.Generate()
+	uuid, err := sf.Generate()
 	return uuid, err
 }
-
 
 // trimChar trim first and last byte
 // unuse
@@ -164,4 +164,15 @@ func (sf *SnowFlake) waitNextMilli(ts uint64) uint64 {
 // timestamp
 func timestamp() uint64 {
 	return uint64(time.Now().UnixNano()/int64(1000000) - epoch)
+}
+
+//高效的字节转字符串
+func StrToBytes(s string) []byte {
+	x := (*[2]uintptr)(unsafe.Pointer(&s))
+	h := [3]uintptr{x[0], x[1], x[1]}
+	return *(*[]byte)(unsafe.Pointer(&h))
+}
+
+func BytesToStr(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
 }

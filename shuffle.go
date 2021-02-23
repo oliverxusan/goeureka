@@ -11,7 +11,7 @@ func init() {
 
 type Shuffle interface {
 	RandRobin(indexes []int)
-	RandRobin2(n int) []int
+	RandRobin2(n int) int
 }
 
 type Rand struct {
@@ -28,6 +28,6 @@ func (r *Rand) RandRobin(indexes []int) {
 	}
 }
 
-func (r *Rand) RandRobin2(n int) []int {
-	return rand.Perm(n)
+func (r *Rand) RandRobin2(n int) int {
+	return rand.Perm(n)[0]
 }
