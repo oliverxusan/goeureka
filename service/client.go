@@ -48,15 +48,20 @@ func (c *ClientService) getServiceNode(nodeList []Node) string {
 	return c.Schema + c.Strategy.getServiceNode(nodeList)
 }
 
-func (c *ClientService) Request(path string, param map[string]interface{}) interface{} {
+func (c *ClientService) Request(path string, param ...map[string]interface{}) interface{} {
 	nodeList := c.getRegisterCenterData()
 	if len(nodeList) == 0 {
 		panic("Get Service Node List is null")
 	}
 	base := c.getServiceNode(nodeList) + "/" + path
-	body, err := json.Marshal(param)
-	if err != nil {
-		panic(err)
+	var body []byte
+	if len(param) > 0 && param[0] != nil {
+		body, err := json.Marshal(param[0])
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		body = []byte("")
 	}
 	resp, err := goeureka.Req(base, goeureka.BytesToStr(body))
 	if err != nil {
