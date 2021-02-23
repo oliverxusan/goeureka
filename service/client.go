@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/oliverxusuan/goeureka"
+	"github.com/oliverxusan/goeureka"
 	"log"
 	"strings"
 )
