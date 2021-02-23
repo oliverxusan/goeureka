@@ -56,11 +56,11 @@ func (c *ClientService) Request(path string, param map[string]interface{}) inter
 	base := c.getServiceNode(nodeList) + "/" + path
 	body, err := json.Marshal(param)
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 	resp, err := goeureka.Req(base, goeureka.BytesToStr(body))
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 	return resp
 }
