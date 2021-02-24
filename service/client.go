@@ -53,20 +53,25 @@ func (c *ClientService) Request(path string, param ...map[string]interface{}) in
 		panic("Get Service Node List is null")
 	}
 	base := c.getServiceNode(nodeList) + "/" + path
-	var body []byte
+
 	if len(param) > 0 && param[0] != nil {
 		body, err := json.Marshal(param[0])
 		if err != nil {
 			panic(err)
 		}
+		resp, err := goeureka.Req(base, goeureka.BytesToStr(body))
+		if err != nil {
+			panic(err)
+		}
+		return resp
 	} else {
-		body = []byte("")
+		body := []byte("")
+		resp, err := goeureka.Req(base, goeureka.BytesToStr(body))
+		if err != nil {
+			panic(err)
+		}
+		return resp
 	}
-	resp, err := goeureka.Req(base, goeureka.BytesToStr(body))
-	if err != nil {
-		panic(err)
-	}
-	return resp
 }
 
 func (c *ClientService) getRegisterCenterData() []Node {
