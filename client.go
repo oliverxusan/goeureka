@@ -95,7 +95,7 @@ func GetAllServiceInstances(appName string) ([]Instance, error) {
 		Accept:      "application/json;charset=UTF-8",
 		ContentType: "application/json;charset=UTF-8",
 	}
-	log.Println("Query Eureka server using URL: " + requestAction.Url)
+	//log.Println("Query Eureka server using URL: " + requestAction.Url)
 	bytes, err := exeQuery(requestAction)
 	if len(bytes) == 0 {
 		log.Printf("Query Eureka Response is None")
@@ -147,7 +147,7 @@ func GetServices() ([]Application, error) {
 		Accept:      "application/json;charset=UTF-8",
 		ContentType: "application/json;charset=UTF-8",
 	}
-	log.Println("Query all services URL:" + requestAction.Url)
+	//log.Println("Query all services URL:" + requestAction.Url)
 	bytes, err := exeQuery(requestAction)
 	if err != nil {
 		return nil, err
@@ -247,7 +247,7 @@ func Req(url string, body string) (m map[string]interface{}, err error) {
 		ContentType: "application/json;charset=UTF-8",
 		Body:        body,
 	}
-	log.Println("Client URL:" + requestAction.Url)
+	//log.Println("Client URL:" + requestAction.Url)
 	bytes, err := exeQuery(requestAction)
 	if err != nil {
 		return nil, err
