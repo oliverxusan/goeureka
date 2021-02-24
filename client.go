@@ -37,7 +37,7 @@ func RegisterClient(eurekaUrl string, localIp string, appName string, port strin
 	} else {
 		panic("username or password is valid!")
 	}
-	Register(appName, localIp, port, securePort)
+	go Register(appName, localIp, port, securePort)
 }
 
 // Register :register your app at the local Eureka server
