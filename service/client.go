@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"github.com/oliverxusan/goeureka"
-	"log"
 	"strconv"
 	"strings"
 )
