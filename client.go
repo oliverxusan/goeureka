@@ -279,7 +279,7 @@ func repeatRegister(appName, localIp, port, securePort string) {
 		}
 	}
 }
-func Req(url string, body string, method string) (m map[string]interface{}, err error) {
+func Req(url string, body string, method string) (m []byte, err error) {
 	if method == "" {
 		method = "POST"
 	}
@@ -295,12 +295,6 @@ func Req(url string, body string, method string) (m map[string]interface{}, err 
 	if err != nil {
 		return nil, err
 	} else {
-		//log.Println("query all services response from Eureka:\n" + string(bytes))
-		err := json.Unmarshal(bytes, &m)
-		if err != nil {
-			log.Printf("Parse JSON Error(%v) from Server Response", err.Error())
-			return nil, err
-		}
-		return m, nil
+		return bytes, nil
 	}
 }
