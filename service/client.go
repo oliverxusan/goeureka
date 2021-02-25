@@ -11,7 +11,7 @@ type ClientInterface interface {
 	//获得服务化名称
 	GetServiceName() string
 	//调用服务化
-	Request(path string, param map[string]interface{}) interface{}
+	Request(path string, param ...interface{}) interface{}
 	//获取注册中心节点
 	getRegisterCenterData() []Node
 	//负载均衡
@@ -47,7 +47,7 @@ func (c *ClientService) getServiceNode(nodeList []Node) string {
 	return c.Schema + c.Strategy.getServiceNode(nodeList)
 }
 
-func (c *ClientService) Request(path string, param ...map[string]interface{}) interface{} {
+func (c *ClientService) Request(path string, param ...interface{}) interface{} {
 	nodeList := c.getRegisterCenterData()
 	if len(nodeList) == 0 {
 		panic("Get Service Node List is null")
@@ -59,14 +59,21 @@ func (c *ClientService) Request(path string, param ...map[string]interface{}) in
 		if err != nil {
 			panic(err)
 		}
-		resp, err := goeureka.Req(base, goeureka.BytesToStr(body))
+		method := "POST"
+		if len(param) >= 2 {
+			if strings.ToUpper(param[1].(string)) != "POST" || strings.ToUpper(param[1].(string)) != "GET" {
+				panic("Request Method is mistake!please use post or get method.")
+			}
+			method = param[1].(string)
+		}
+		resp, err := goeureka.Req(base, goeureka.BytesToStr(body), method)
 		if err != nil {
 			panic(err)
 		}
 		return resp
 	} else {
 		body := []byte("")
-		resp, err := goeureka.Req(base, goeureka.BytesToStr(body))
+		resp, err := goeureka.Req(base, goeureka.BytesToStr(body), "POST")
 		if err != nil {
 			panic(err)
 		}

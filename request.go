@@ -22,10 +22,10 @@ func exeQuery(requestAction RequestAction) ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
-			conn.SetDeadline(time.Now().Add(time.Second * 10)) //设置发送接受数据超时
+			conn.SetDeadline(time.Now().Add(time.Second * 30)) //设置发送接受数据超时
 			return conn, nil
 		},
-		ResponseHeaderTimeout: time.Second * 10,
+		ResponseHeaderTimeout: time.Second * 30,
 	}
 
 	resp, err := DefaultTransport.RoundTrip(request)

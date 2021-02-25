@@ -279,10 +279,13 @@ func repeatRegister(appName, localIp, port, securePort string) {
 		}
 	}
 }
-func Req(url string, body string) (m map[string]interface{}, err error) {
+func Req(url string, body string, method string) (m map[string]interface{}, err error) {
+	if method == "" {
+		method = "POST"
+	}
 	requestAction := RequestAction{
 		Url:         url,
-		Method:      "POST",
+		Method:      strings.ToUpper(method),
 		Accept:      "application/json;charset=UTF-8",
 		ContentType: "application/json;charset=UTF-8",
 		Body:        body,
