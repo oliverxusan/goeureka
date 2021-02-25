@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"github.com/oliverxusan/goeureka"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -47,7 +48,7 @@ func (c *ClientService) getServiceNode(nodeList []Node) string {
 	return c.Schema + c.Strategy.getServiceNode(nodeList)
 }
 
-func (c *ClientService) Request(path string, param ...interface{}) interface{} {
+func (c *ClientService) Request(path string, param ...interface{}) (response *goeureka.Response, err error) {
 	nodeList := c.getRegisterCenterData()
 	if len(nodeList) == 0 {
 		panic("Get Service Node List is null")
@@ -66,18 +67,28 @@ func (c *ClientService) Request(path string, param ...interface{}) interface{} {
 			}
 			method = param[1].(string)
 		}
-		resp, err := goeureka.Req(base, goeureka.BytesToStr(body), method)
+		bytes, err := goeureka.Req(base, goeureka.BytesToStr(body), method)
 		if err != nil {
 			panic(err)
 		}
-		return resp
+		err = json.Unmarshal(bytes, &response)
+		if err != nil {
+			log.Printf("Parse JSON Error(%v) from Eureka Server Response", err.Error())
+			return nil, err
+		}
+		return response, nil
 	} else {
 		body := []byte("")
-		resp, err := goeureka.Req(base, goeureka.BytesToStr(body), "POST")
+		bytes, err := goeureka.Req(base, goeureka.BytesToStr(body), "POST")
 		if err != nil {
 			panic(err)
 		}
-		return resp
+		err = json.Unmarshal(bytes, &response)
+		if err != nil {
+			log.Printf("Parse JSON Error(%v) from Eureka Server Response", err.Error())
+			return nil, err
+		}
+		return response, nil
 	}
 }
 
