@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 )
@@ -13,10 +14,12 @@ import (
 var (
 	VPort              string
 	VLocalIp           string
+	VSPort             string
 	username           string                    // login username
 	password           string                    // login password
 	eurekaPath         = "/eureka/apps/"         // define eureka path
 	discoveryServerUrl = "http://127.0.0.1:8761" // local eureka url
+	Retry              int64
 )
 
 // RegisterClient register this app at the Eureka server
@@ -49,6 +52,7 @@ func RegisterClient(eurekaUrl string, localIp string, appName string, port strin
 func Register(appName string, localIp string, port string, securePort string) {
 	appName = strings.ToUpper(appName)
 	VPort = port
+	VSPort = securePort
 	if localIp == "" {
 		VLocalIp = getLocalIP()
 	} else {
@@ -180,6 +184,13 @@ func heartbeat(appName string, localIp string) {
 	appName = strings.ToUpper(appName)
 	instanceId, lastDirtyTimestamp, err := GetInfoWithAppName(appName)
 	if instanceId == "" {
+		limit := atomic.LoadInt64(&Retry)
+		if limit >= 3 {
+			repeatRegister(appName, VLocalIp, VPort, VSPort)
+			atomic.StoreInt64(&Retry, 0)
+			return
+		}
+		atomic.AddInt64(&Retry, 1)
 		log.Printf("instanceId is None , Please check at (%v) \n", discoveryServerUrl)
 		return
 	}
@@ -239,6 +250,35 @@ func handleSigtermProcess(appName string) {
 	}()
 }
 
+//重新注册到Eureka
+func repeatRegister(appName, localIp, port, securePort string) {
+	appName = strings.ToUpper(appName)
+	VPort = port
+	if localIp == "" {
+		VLocalIp = getLocalIP()
+	} else {
+		VLocalIp = localIp
+	}
+	cfg := newConfig(appName, VLocalIp, port, securePort)
+
+	// define Register request
+	registerAction := RequestAction{
+		Url:         discoveryServerUrl + eurekaPath + appName,
+		Method:      "POST",
+		ContentType: "application/json;charset=UTF-8",
+		Body:        cfg,
+	}
+	for {
+		result := isDoHttpRequest(registerAction)
+		if result {
+			log.Println("Registration OK Again")
+			break
+		} else {
+			log.Println("Registration attempt of " + appName + " failed... Again")
+			time.Sleep(time.Second * 3)
+		}
+	}
+}
 func Req(url string, body string) (m map[string]interface{}, err error) {
 	requestAction := RequestAction{
 		Url:         url,
