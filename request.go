@@ -3,7 +3,6 @@ package goeureka
 import (
 	"context"
 	"crypto/tls"
-	"github.com/oliverxusan/goeureka/service"
 	"io/ioutil"
 	"log"
 	"net"
