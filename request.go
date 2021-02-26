@@ -18,24 +18,26 @@ func exeQuery(requestAction RequestAction) ([]byte, error) {
 	var DefaultTransport http.RoundTripper = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-			conn, err := net.DialTimeout(network, addr, time.Second*10) //设置建立连接超时
+			conn, err := net.DialTimeout(network, addr, time.Second*60) //设置建立连接超时
 			if err != nil {
 				return nil, err
 			}
-			conn.SetDeadline(time.Now().Add(time.Second * 30)) //设置发送接受数据超时
+			conn.SetDeadline(time.Now().Add(time.Second * 60)) //设置发送接受数据超时
 			return conn, nil
 		},
-		ResponseHeaderTimeout: time.Second * 30,
+		ResponseHeaderTimeout: time.Second * 60,
 	}
 
 	resp, err := DefaultTransport.RoundTrip(request)
 	if err != nil {
-		return []byte(nil), err
+		return nil, err
 	} else {
-		defer resp.Body.Close()
 		responseBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return []byte(nil), err
+			return nil, err
+		}
+		if resp != nil {
+			resp.Body.Close()
 		}
 		return responseBody, nil
 	}
