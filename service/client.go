@@ -30,6 +30,17 @@ type Node struct {
 	Ip   string
 	Port string
 }
+type Error struct {
+	ErrorNo  int
+	ErrorMsg string
+}
+
+func ErrorNew(err string) *Error {
+	return &Error{ErrorNo: -1, ErrorMsg: err}
+}
+func (e *Error) Error() string {
+	return e.ErrorMsg
+}
 
 func NEW(appName string) *ClientService {
 	c := &ClientService{
@@ -51,7 +62,8 @@ func (c *ClientService) getServiceNode(nodeList []Node) string {
 func (c *ClientService) Request(path string, param ...interface{}) (response *goeureka.Response, err error) {
 	nodeList := c.getRegisterCenterData()
 	if len(nodeList) == 0 {
-		panic("Get Service Node List is null")
+		log.Println("ERROR Get Service Node List is null")
+		return nil, ErrorNew("ERROR Get Service Node List is null")
 	}
 	base := c.getServiceNode(nodeList) + "/" + path
 
@@ -63,13 +75,15 @@ func (c *ClientService) Request(path string, param ...interface{}) (response *go
 		method := "POST"
 		if len(param) >= 2 {
 			if strings.ToUpper(param[1].(string)) != "POST" || strings.ToUpper(param[1].(string)) != "GET" {
-				panic("Request Method is mistake!please use post or get method.")
+				log.Println("ERROR Request Method is mistake!please use post or get method.")
+				return nil, ErrorNew("Request Method is mistake!please use post or get method.")
 			}
 			method = param[1].(string)
 		}
 		bytes, err := goeureka.Req(base, goeureka.BytesToStr(body), method)
 		if err != nil {
-			panic(err)
+			log.Printf("ERROR goeureka.Req %s", err.Error())
+			return nil, err
 		}
 		err = json.Unmarshal(bytes, &response)
 		if err != nil {
@@ -95,7 +109,8 @@ func (c *ClientService) Request(path string, param ...interface{}) (response *go
 func (c *ClientService) getRegisterCenterData() []Node {
 	instances, err := goeureka.GetAllServiceInstances(c.AppName)
 	if err != nil {
-		panic("Get Register Center Data" + err.Error())
+		log.Println("ERROR Get Register Center Data" + err.Error())
+		return nil
 	}
 	nodeList := make([]Node, len(instances))
 	if len(instances) > 0 {
