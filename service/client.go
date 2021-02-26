@@ -30,17 +30,6 @@ type Node struct {
 	Ip   string
 	Port string
 }
-type Error struct {
-	ErrorNo  int
-	ErrorMsg string
-}
-
-func ErrorNew(err string) *Error {
-	return &Error{ErrorNo: -1, ErrorMsg: err}
-}
-func (e *Error) Error() string {
-	return e.ErrorMsg
-}
 
 func NEW(appName string) *ClientService {
 	c := &ClientService{
@@ -63,7 +52,7 @@ func (c *ClientService) Request(path string, param ...interface{}) (response *go
 	nodeList := c.getRegisterCenterData()
 	if len(nodeList) == 0 {
 		log.Println("ERROR Get Service Node List is null")
-		return nil, ErrorNew("ERROR Get Service Node List is null")
+		return nil, goeureka.ErrorNew("ERROR Get Service Node List is null")
 	}
 	base := c.getServiceNode(nodeList) + "/" + path
 
@@ -76,7 +65,7 @@ func (c *ClientService) Request(path string, param ...interface{}) (response *go
 		if len(param) >= 2 {
 			if strings.ToUpper(param[1].(string)) != "POST" || strings.ToUpper(param[1].(string)) != "GET" {
 				log.Println("ERROR Request Method is mistake!please use post or get method.")
-				return nil, ErrorNew("Request Method is mistake!please use post or get method.")
+				return nil, goeureka.ErrorNew("Request Method is mistake!please use post or get method.")
 			}
 			method = param[1].(string)
 		}

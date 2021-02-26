@@ -42,7 +42,7 @@ func exeQuery(requestAction RequestAction) ([]byte, error) {
 		defer resp.Body.Close()
 		return responseBody, nil
 	} else {
-		return nil, service.ErrorNew("exeQuery is wrong!")
+		return nil, ErrorNew("exeQuery is wrong!")
 	}
 }
 
