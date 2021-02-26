@@ -3,6 +3,7 @@ package goeureka
 import (
 	"context"
 	"crypto/tls"
+	"github.com/oliverxusan/goeureka/service"
 	"io/ioutil"
 	"log"
 	"net"
@@ -31,15 +32,17 @@ func exeQuery(requestAction RequestAction) ([]byte, error) {
 	resp, err := DefaultTransport.RoundTrip(request)
 	if err != nil {
 		return nil, err
-	} else {
+	}
+
+	if resp != nil {
 		responseBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}
-		if resp != nil {
-			resp.Body.Close()
-		}
+		defer resp.Body.Close()
 		return responseBody, nil
+	} else {
+		return nil, service.ErrorNew("exeQuery is wrong!")
 	}
 }
 
