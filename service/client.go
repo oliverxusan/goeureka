@@ -59,7 +59,7 @@ func (c *ClientService) Request(path string, param ...interface{}) (response *go
 	if len(param) > 0 && param[0] != nil {
 		body, err := json.Marshal(param[0])
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		method := "POST"
 		if len(param) >= 2 {
@@ -84,7 +84,7 @@ func (c *ClientService) Request(path string, param ...interface{}) (response *go
 		body := []byte("")
 		bytes, err := goeureka.Req(base, goeureka.BytesToStr(body), "POST")
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		err = json.Unmarshal(bytes, &response)
 		if err != nil {
