@@ -13,6 +13,8 @@ type ClientInterface interface {
 	GetServiceName() string
 	//调用服务化
 	Request(path string, param ...interface{}) interface{}
+	//获取服务化节点ip:port
+	GetServiceDetail() string
 	//获取注册中心节点
 	getRegisterCenterData() []Node
 	//负载均衡
@@ -21,7 +23,6 @@ type ClientInterface interface {
 type ClientService struct {
 	Schema   string
 	AppName  string
-	NodeList []Node
 	Strategy LoadBalanceStrategy
 }
 
@@ -46,6 +47,14 @@ func (c *ClientService) GetServiceName() string {
 
 func (c *ClientService) getServiceNode(nodeList []Node) string {
 	return c.Schema + c.Strategy.getServiceNode(nodeList)
+}
+
+func (c *ClientService) GetServiceDetail() string {
+	nodeList := c.getRegisterCenterData()
+	if nodeList == nil || len(nodeList) == 0 {
+		return ""
+	}
+	return c.Strategy.getServiceNode(nodeList)
 }
 
 func (c *ClientService) Request(path string, param ...interface{}) (response *goeureka.Response, err error) {
