@@ -26,7 +26,7 @@ type ClientService struct {
 	Strategy LoadBalanceStrategy
 }
 
-//节点结构体
+// 节点结构体
 type Node struct {
 	Ip   string
 	Port string
@@ -114,7 +114,7 @@ func (c *ClientService) getRegisterCenterData() []Node {
 	if len(instances) > 0 {
 		for k, ins := range instances {
 			nodeList[k] = Node{
-				Ip:   ins.IpAddr,
+				Ip:   ins.HostName,
 				Port: strconv.Itoa(ins.Port.Port),
 			}
 		}
@@ -126,7 +126,7 @@ type LoadBalanceStrategy interface {
 	getServiceNode(nodeList []Node) string
 }
 
-//随机轮询
+// 随机轮询
 type RoundRobinStrategy struct {
 }
 
